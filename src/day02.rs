@@ -20,7 +20,7 @@ fn solve(input: &str) -> i32 {
 
         value = value * 10 + buttons[[x, y]];
     }
-    return value;
+    value
 }
 
 #[test]
@@ -60,7 +60,7 @@ fn solve2(input: &str) -> String {
         }
         value.push(buttons[[x, y]]);
     }
-    return String::from_iter(value);
+    String::from_iter(value)
 }
 
 #[test]

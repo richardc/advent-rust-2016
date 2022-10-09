@@ -6,7 +6,7 @@ use ndarray::prelude::*;
 fn solve(input: &str) -> i32 {
     let mut position = array![0, 0];
     let vectors = [
-        array![0 as i32, 1],
+        array![0_i32, 1],
         array![1, 0],
         array![0, -1],
         array![-1, 0],
@@ -23,7 +23,7 @@ fn solve(input: &str) -> i32 {
         let delta = &vectors[facing] * distance;
         position += &delta;
     }
-    return position[0].abs() + position[1].abs();
+    position[0].abs() + position[1].abs()
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn test_solve() {
 fn solve2(input: &str) -> i32 {
     let mut position = array![0, 0];
     let vectors = [
-        array![0 as i32, 1],
+        array![0_i32, 1],
         array![1, 0],
         array![0, -1],
         array![-1, 0],
@@ -57,13 +57,13 @@ fn solve2(input: &str) -> i32 {
             // Each step is is a grid corner we visited
             position += &vectors[facing];
             let here = (position[0], position[1]);
-            if let Some(_) = visited.get(&here) {
+            if visited.get(&here).is_some() {
                 return position[0].abs() + position[1].abs();
             }
             visited.insert(here);
         }
     }
-    return position[0].abs() + position[1].abs();
+    position[0].abs() + position[1].abs()
 }
 
 #[test]
