@@ -17,6 +17,7 @@ fn solve(input: &str) -> String {
     answer
 }
 
+#[ignore]
 #[test]
 fn test_solve() {
     assert_eq!(&solve("abc"), "18f47a30");
@@ -46,6 +47,7 @@ fn solve2(input: &str) -> String {
     String::from_iter(answer)
 }
 
+#[ignore]
 #[test]
 fn test_solve2() {
     assert_eq!(&solve2("abc"), "05ace8e3");
