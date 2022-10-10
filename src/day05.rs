@@ -18,6 +18,35 @@ fn solve(input: &str) -> String {
 }
 
 #[test]
-fn test_password() {
+fn test_solve() {
     assert_eq!(&solve("abc"), "18f47a30");
+}
+
+#[aoc(day5, part2)]
+fn solve2(input: &str) -> String {
+    let mut interesting = 0;
+    let mut answer = ['_'; 8];
+    while answer.iter().any(|&c| c == '_') {
+        let digest = md5::compute(format!("{input}{interesting}").as_bytes());
+        let hex = format!("{:x}", digest);
+        interesting += 1;
+
+        if &hex[0..5] == "00000" {
+            let index = usize::from_str_radix(&hex[5..=5], 16).unwrap();
+            if index >= answer.len() {
+                continue;
+            }
+            if answer[index] == '_' {
+                let digit = hex.chars().nth(6).unwrap();
+                answer[index] = digit;
+                println!("{} {}", interesting, String::from_iter(answer));
+            }
+        }
+    }
+    String::from_iter(answer)
+}
+
+#[test]
+fn test_solve2() {
+    assert_eq!(&solve2("abc"), "05ace8e3");
 }
