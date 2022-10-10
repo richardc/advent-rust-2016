@@ -3,19 +3,23 @@ fn solve(input: &str) -> usize {
     input.lines().filter(|l| has_tls(l)).count()
 }
 
-fn has_tls(addr: &str) -> bool {
+fn parse_addr(addr: &str) -> (Vec<&str>, Vec<&str>) {
+    let mut addrs = vec![];
+    let mut nets = vec![];
     let mut a = addr;
-    let mut other = vec![];
     while let Some((left, rem)) = a.split_once('[') {
-        other.push(left);
+        addrs.push(left);
         let Some((mid, rest)) = rem.split_once(']') else { unreachable!() };
-        if has_abba(mid) {
-            return false;
-        }
+        nets.push(mid);
         a = rest
     }
-    other.push(a);
-    other.into_iter().any(has_abba)
+    addrs.push(a);
+    (addrs, nets)
+}
+
+fn has_tls(addr: &str) -> bool {
+    let (addrs, nets) = parse_addr(addr);
+    !nets.into_iter().any(has_abba) && addrs.into_iter().any(has_abba)
 }
 
 fn has_abba(s: &str) -> bool {
