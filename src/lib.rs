@@ -8,5 +8,6 @@ extern crate pretty_assertions;
 mod day01;
 mod day02;
 mod day03;
+mod day04;
 
 aoc_lib! { year = 2016 }
