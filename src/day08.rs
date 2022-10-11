@@ -1,11 +1,11 @@
 use itertools::{iproduct, Itertools};
 use ndarray::prelude::*;
 
-struct Display {
+struct Lcd {
     data: Array2<bool>,
 }
 
-impl std::fmt::Debug for Display {
+impl std::fmt::Debug for Lcd {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -19,13 +19,13 @@ impl std::fmt::Debug for Display {
     }
 }
 
-impl PartialEq<&str> for Display {
+impl PartialEq<&str> for Lcd {
     fn eq(&self, other: &&str) -> bool {
         format!("{:?}", self) == *other.trim()
     }
 }
 
-impl Display {
+impl Lcd {
     fn new(w: usize, h: usize) -> Self {
         Self {
             data: Array2::default((h, w)),
@@ -64,7 +64,7 @@ impl Display {
 
 #[test]
 fn test_pixels() {
-    let mut display = Display::new(7, 3);
+    let mut display = Lcd::new(7, 3);
     assert_eq!(display.lit(), 0);
 
     display.apply("rect 3x2");
@@ -87,11 +87,21 @@ fn test_pixels() {
     assert_eq!(display, example.trim());
 }
 
-#[aoc(day8, part1)]
-fn solve(input: &str) -> usize {
-    let mut display = Display::new(50, 6);
+#[aoc_generator(day8)]
+fn generate(input: &str) -> Lcd {
+    let mut display = Lcd::new(50, 6);
     for c in input.lines() {
         display.apply(c);
     }
+    display
+}
+
+#[aoc(day8, part1)]
+fn solve(display: &Lcd) -> usize {
     display.lit()
+}
+
+#[aoc(day8, part2)]
+fn solve2(display: &Lcd) -> String {
+    format!("\n{:?}", display)
 }
