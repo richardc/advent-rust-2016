@@ -129,3 +129,11 @@ fn solve(program: &[Instruction]) -> i32 {
 fn test_solve() {
     assert_eq!(solve(&generate(include_str!("day12_example.txt"))), 42);
 }
+
+#[aoc(day12, part2)]
+fn solve2(program: &[Instruction]) -> i32 {
+    let mut cpu = Cpu::default();
+    cpu.c = 1;
+    cpu.run(program);
+    cpu.a
+}
