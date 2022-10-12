@@ -121,7 +121,7 @@ fn generate(input: &str) -> Vec<Instruction> {
 fn solve(program: &[Instruction]) -> i32 {
     let mut cpu = Cpu::default();
     cpu.run(program);
-    cpu.a
+    cpu.get('a')
 }
 
 #[cfg(test)]
@@ -133,7 +133,7 @@ fn test_solve() {
 #[aoc(day12, part2)]
 fn solve2(program: &[Instruction]) -> i32 {
     let mut cpu = Cpu::default();
-    cpu.c = 1;
+    cpu.set('c', 1);
     cpu.run(program);
-    cpu.a
+    cpu.get('a')
 }
