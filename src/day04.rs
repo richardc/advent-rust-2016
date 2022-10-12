@@ -9,8 +9,8 @@ struct Room {
 
 impl From<&str> for Room {
     fn from(input: &str) -> Self {
-        let Some((name, rest)) = input.rsplit_once('-') else { unreachable!() };
-        let Some((sector, checksum)) = rest.split_once('[') else { unreachable!() };
+        let (name, rest) = input.rsplit_once('-').unwrap();
+        let (sector, checksum) = rest.split_once('[').unwrap();
 
         Self {
             name: name.to_string(),

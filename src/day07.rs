@@ -14,8 +14,8 @@ fn parse_addr(addr: &str) -> (Vec<&str>, Vec<&str>) {
     let mut a = addr;
     while let Some((left, rem)) = a.split_once('[') {
         addrs.push(left);
-        let Some((mid, rest)) = rem.split_once(']') else { unreachable!() };
-        nets.push(mid);
+        let (net, rest) = rem.split_once(']').unwrap();
+        nets.push(net);
         a = rest
     }
     addrs.push(a);
