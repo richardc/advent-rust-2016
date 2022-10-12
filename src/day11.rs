@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use itertools::Itertools;
 use lazy_static::lazy_static;
-use pathfinding::prelude::bfs;
+use pathfinding::prelude::dijkstra;
 use regex::Regex;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Ord, PartialOrd)]
@@ -176,8 +176,13 @@ fn test_factory_solved() {
 #[aoc(day11, part1)]
 fn solve(input: &str) -> usize {
     let factory: Factory = input.parse().unwrap();
-    if let Some(path) = bfs(&factory, |f| f.moves(), |f| f.solved()) {
-        path.len() + 1
+    if let Some((_path, cost)) = dijkstra(
+        &factory,
+        |f| f.moves().into_iter().map(|m| (m, 1)).collect_vec(),
+        |f| f.solved(),
+    ) {
+        dbg!(_path.len());
+        cost
     } else {
         0
     }
@@ -187,4 +192,24 @@ fn solve(input: &str) -> usize {
 #[test]
 fn test_solve() {
     assert_eq!(solve(include_str!("day11_example.txt")), 11);
+}
+
+#[aoc(day11, part2)]
+fn solve2(input: &str) -> usize {
+    let mut factory: Factory = input.parse().unwrap();
+    factory.floors[0].add(Item::Chip("elerium".to_string()));
+    factory.floors[0].add(Item::Generator("elerium".to_string()));
+    factory.floors[0].add(Item::Chip("dilithium".to_string()));
+    factory.floors[0].add(Item::Generator("dilithium".to_string()));
+
+    if let Some((_path, cost)) = dijkstra(
+        &factory,
+        |f| f.moves().into_iter().map(|m| (m, 1)).collect_vec(),
+        |f| f.solved(),
+    ) {
+        dbg!(_path.len());
+        cost
+    } else {
+        0
+    }
 }
