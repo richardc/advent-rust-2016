@@ -49,6 +49,7 @@ fn solve(input: &str) -> usize {
 fn solve2(input: &str) -> usize {
     let seed = input.parse().unwrap();
     iproduct!(0..=50, 0..=50)
+        .filter(|&(x, y)| !is_wall(seed, x, y))
         .flat_map(|goal| {
             match dijkstra(&(1, 1), |&(x, y)| successors(seed, x, y), |&p| p == goal) {
                 Some((nodes, count)) if count <= 50 => nodes,
