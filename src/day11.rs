@@ -14,6 +14,7 @@ enum Item {
 #[derive(Debug, Default, PartialEq, Eq, Clone)]
 struct Floor(HashSet<Item>);
 
+#[allow(clippy::derive_hash_xor_eq)]
 impl std::hash::Hash for Floor {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.0.iter().sorted().for_each(|i| i.hash(state));
