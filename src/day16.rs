@@ -68,3 +68,8 @@ fn example_fill_disk() {
 fn solve(seed: &str) -> String {
     fill_disk(seed, 272)
 }
+
+#[aoc(day16, part2)]
+fn solve2(seed: &str) -> String {
+    fill_disk(seed, 35651584)
+}
