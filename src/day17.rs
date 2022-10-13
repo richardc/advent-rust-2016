@@ -9,10 +9,7 @@ struct Maze {
 }
 
 fn door_open(c: u8) -> bool {
-    match c {
-        b'b' | b'c' | b'd' | b'e' | b'f' => true,
-        _ => false,
-    }
+    (b'b'..=b'f').contains(&c)
 }
 
 impl Maze {
