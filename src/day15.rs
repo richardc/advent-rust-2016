@@ -3,7 +3,7 @@ use regex::Regex;
 
 use std::str::FromStr;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 struct Disc {
     start: usize,
     period: usize,
@@ -64,4 +64,18 @@ fn solve(discs: &[Disc]) -> usize {
 #[test]
 fn test_solve() {
     assert_eq!(solve(&generate(include_str!("day15_example.txt"))), 5)
+}
+
+#[aoc(day15, part2)]
+fn solve2(discs: &[Disc]) -> usize {
+    solve(
+        &[
+            discs,
+            &[Disc {
+                period: 11,
+                start: 0,
+            }],
+        ]
+        .concat(),
+    )
 }
