@@ -42,12 +42,21 @@ fn test_disc_from_str() {
     )
 }
 
-#[aoc_generator(day15)]
+#[aoc_generator(day15, part1)]
 fn generate(s: &str) -> Vec<Disc> {
     s.lines().map(|l| l.parse().unwrap()).collect()
 }
 
+#[aoc_generator(day15, part2)]
+fn generate2(s: &str) -> Vec<Disc> {
+    generate(&format!(
+        "{s}\n{}",
+        "Disc #99 has 11 positions; at time=0, it is at position 0."
+    ))
+}
+
 #[aoc(day15, part1)]
+#[aoc(day15, part2)]
 fn solve(discs: &[Disc]) -> usize {
     'time: for time in 0.. {
         for (i, disc) in discs.iter().enumerate() {
@@ -64,18 +73,4 @@ fn solve(discs: &[Disc]) -> usize {
 #[test]
 fn test_solve() {
     assert_eq!(solve(&generate(include_str!("day15_example.txt"))), 5)
-}
-
-#[aoc(day15, part2)]
-fn solve2(discs: &[Disc]) -> usize {
-    solve(
-        &[
-            discs,
-            &[Disc {
-                period: 11,
-                start: 0,
-            }],
-        ]
-        .concat(),
-    )
 }
