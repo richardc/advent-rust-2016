@@ -1,4 +1,5 @@
-use pathfinding::prelude::dijkstra;
+use pathfinding::prelude::bfs;
+use pathfinding::prelude::bfs_reach;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 struct Maze {
@@ -36,7 +37,11 @@ impl Maze {
         moved
     }
 
-    fn successors(&self) -> Vec<(Self, usize)> {
+    fn successors(&self) -> Vec<Self> {
+        if self.success() {
+            return vec![];
+        }
+
         let hash = format!(
             "{:x}",
             md5::compute(format!("{}{}", self.salt, String::from_iter(&self.path)))
@@ -46,16 +51,16 @@ impl Maze {
 
         let mut succ = vec![];
         if self.y > 1 && door_open(up) {
-            succ.push((self.make_move('U'), 1))
+            succ.push(self.make_move('U'))
         }
         if self.y < 4 && door_open(down) {
-            succ.push((self.make_move('D'), 1))
+            succ.push(self.make_move('D'))
         }
         if self.x > 1 && door_open(left) {
-            succ.push((self.make_move('L'), 1))
+            succ.push(self.make_move('L'))
         }
         if self.x < 4 && door_open(right) {
-            succ.push((self.make_move('R'), 1))
+            succ.push(self.make_move('R'))
         }
 
         succ
@@ -72,7 +77,7 @@ mod maze_successors {
     #[test]
     fn start() {
         let start = Maze::new("hijkl");
-        assert_eq!(start.successors(), vec![(start.make_move('D'), 1)])
+        assert_eq!(start.successors(), vec![start.make_move('D')])
     }
 
     #[test]
@@ -80,14 +85,14 @@ mod maze_successors {
         let start = Maze::new("hijkl").make_move('D');
         assert_eq!(
             start.successors(),
-            vec![(start.make_move('U'), 1), (start.make_move('R'), 1)]
+            vec![start.make_move('U'), start.make_move('R')]
         )
     }
 
     #[test]
     fn du() {
         let start = Maze::new("hijkl").make_move('D').make_move('U');
-        assert_eq!(start.successors(), vec![(start.make_move('R'), 1)])
+        assert_eq!(start.successors(), vec![start.make_move('R')])
     }
 
     #[test]
@@ -107,9 +112,9 @@ mod maze_successors {
 }
 
 #[aoc(day17, part1)]
-fn solve(salt: &str) -> String {
+fn shortest(salt: &str) -> String {
     let maze = Maze::new(salt);
-    if let Some((path, _cost)) = dijkstra(&maze, |m| m.successors(), |m| m.success()) {
+    if let Some(path) = bfs(&maze, |m| m.successors(), |m| m.success()) {
         //println!("Found: {:?} {}", path, _cost);
         return String::from_iter(&path.last().unwrap().path);
     }
@@ -119,18 +124,49 @@ fn solve(salt: &str) -> String {
 
 #[cfg(test)]
 #[test]
-fn solve_ihgpwlah() {
-    assert_eq!(solve("ihgpwlah"), "DDRRRD")
+fn shortest_ihgpwlah() {
+    assert_eq!(shortest("ihgpwlah"), "DDRRRD")
 }
 
 #[cfg(test)]
 #[test]
-fn solve_kglvqrro() {
-    assert_eq!(solve("kglvqrro"), "DDUDRLRRUDRD")
+fn shortest_kglvqrro() {
+    assert_eq!(shortest("kglvqrro"), "DDUDRLRRUDRD")
 }
 
 #[cfg(test)]
 #[test]
-fn solve_ulqzkmiv() {
-    assert_eq!(solve("ulqzkmiv"), "DRURDRUDDLLDLUURRDULRLDUUDDDRR")
+fn shortest_ulqzkmiv() {
+    assert_eq!(shortest("ulqzkmiv"), "DRURDRUDDLLDLUURRDULRLDUUDDDRR")
+}
+
+#[aoc(day17, part2)]
+fn longest(salt: &str) -> usize {
+    let maze = Maze::new(salt);
+    if let Some(path) = bfs_reach(maze, |m| m.successors())
+        .filter(|m| m.success())
+        .last()
+    {
+        return path.path.len();
+    }
+
+    0
+}
+
+#[cfg(test)]
+#[test]
+fn longest_ihgpwlah() {
+    assert_eq!(longest("ihgpwlah"), 370)
+}
+
+#[cfg(test)]
+#[test]
+fn longest_kglvqrro() {
+    assert_eq!(longest("kglvqrro"), 492)
+}
+
+#[cfg(test)]
+#[test]
+fn longest_ulqzkmiv() {
+    assert_eq!(longest("ulqzkmiv"), 830)
 }
