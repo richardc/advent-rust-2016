@@ -64,7 +64,7 @@ fn draw_maze(nodes: &[Node]) -> String {
     let max_x = nodes.iter().map(|n| n.x).max().unwrap();
     let max_y = nodes.iter().map(|n| n.y).max().unwrap();
     let set: HashMap<(usize, usize), Node> =
-        HashMap::from_iter(nodes.into_iter().map(|n| ((n.x, n.y), *n)));
+        HashMap::from_iter(nodes.iter().map(|n| ((n.x, n.y), *n)));
 
     for y in 0..=max_y {
         for x in 0..=max_x {
@@ -77,4 +77,25 @@ fn draw_maze(nodes: &[Node]) -> String {
         println!();
     }
     String::from("")
+}
+
+#[aoc(day22, part2, solving)]
+fn do_math(nodes: &[Node]) -> usize {
+    let max_x = nodes.iter().map(|n| n.x).max().unwrap();
+    let empty = nodes.iter().find(|n| n.used == 0).unwrap();
+    let wall = nodes
+        .iter()
+        .filter(|n| n.describe() == '#')
+        .sorted_by(|a, b| Ord::cmp(&a.x, &b.x))
+        .next()
+        .unwrap();
+    // steps left to clear the wall
+    let left = empty.x - wall.x - 1;
+    // steps up to get to the top wall
+    let up = empty.y;
+    // steps right to get to the goal cell
+    let right = max_x - wall.x - 1;
+    // steps left to get home (spiral)
+    let home = max_x * 5 - 1;
+    left + up + right + home
 }
