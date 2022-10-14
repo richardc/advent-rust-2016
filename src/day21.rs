@@ -65,8 +65,8 @@ impl Scrambler {
                     *c = x as u8
                 }
             }),
-            Instr::RotateLeft(distance) => bytes.rotate_left(distance as usize),
-            Instr::RotateRight(distance) => bytes.rotate_right(distance as usize),
+            Instr::RotateLeft(distance) => bytes.rotate_left(distance),
+            Instr::RotateRight(distance) => bytes.rotate_right(distance),
             Instr::RotateByLetter(c) => {
                 if let Some(index) = bytes.iter().position(|b| *b == c as u8) {
                     let distance = if index >= 4 { index + 2 } else { index + 1 };
