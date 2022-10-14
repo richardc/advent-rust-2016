@@ -23,6 +23,11 @@ fn josephus_fiddling(input: &usize) -> usize {
     usize::from_str_radix(&bits, 2).unwrap()
 }
 
+#[aoc(day19, part1, bitmath)]
+fn josephus_bitmath(input: &usize) -> usize {
+    (*input ^ (1 << (usize::BITS - input.leading_zeros() - 1))) * 2 + 1
+}
+
 #[cfg(test)]
 #[test]
 fn test_josephus() {
