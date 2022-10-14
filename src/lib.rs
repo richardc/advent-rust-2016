@@ -5,6 +5,7 @@ extern crate aoc_runner_derive;
 #[macro_use]
 extern crate pretty_assertions;
 
+mod assembunny;
 mod day01;
 mod day02;
 mod day03;
@@ -27,5 +28,6 @@ mod day19;
 mod day20;
 mod day21;
 mod day22;
+mod day23;
 
 aoc_lib! { year = 2016 }
