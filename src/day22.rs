@@ -1,12 +1,26 @@
+use std::collections::HashMap;
+
 use itertools::Itertools;
 use thiserror::Error;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Copy)]
 struct Node {
     x: usize,
     y: usize,
     used: usize,
     avail: usize,
+}
+
+impl Node {
+    fn describe(&self) -> char {
+        if self.used == 0 {
+            return '_';
+        }
+        if self.used > 100 {
+            return '#';
+        }
+        '.'
+    }
 }
 
 #[derive(Debug, Error)]
@@ -43,4 +57,24 @@ fn solve(nodes: &[Node]) -> usize {
         .permutations(2)
         .filter(|v| v[0] != v[1] && v[0].used != 0 && v[1].avail >= v[0].used)
         .count()
+}
+
+#[aoc(day22, part2, drawing)]
+fn draw_maze(nodes: &[Node]) -> String {
+    let max_x = nodes.iter().map(|n| n.x).max().unwrap();
+    let max_y = nodes.iter().map(|n| n.y).max().unwrap();
+    let set: HashMap<(usize, usize), Node> =
+        HashMap::from_iter(nodes.into_iter().map(|n| ((n.x, n.y), *n)));
+
+    for y in 0..=max_y {
+        for x in 0..=max_x {
+            if let Some(node) = set.get(&(x, y)) {
+                print!("{}", node.describe())
+            } else {
+                print!(" ")
+            }
+        }
+        println!();
+    }
+    String::from("")
 }
