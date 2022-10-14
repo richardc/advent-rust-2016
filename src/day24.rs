@@ -58,8 +58,7 @@ fn generate(s: &str) -> Hvac {
     Hvac::new(s)
 }
 
-#[aoc(day24, part1)]
-fn solve(hvac: &Hvac) -> usize {
+fn solver(hvac: &Hvac, back_home: bool) -> usize {
     let routes: HashMap<(Point, Point), usize> = HashMap::from_iter(
         hvac.nodes()
             .into_iter()
@@ -88,16 +87,30 @@ fn solve(hvac: &Hvac) -> usize {
     let nodes = hvac.nodes();
     let start = nodes[0];
     let mut cheapest = usize::MAX;
-    for walk in nodes[1..].into_iter().permutations(nodes.len() - 1) {
-        let cost = std::iter::once(&start)
+    for walk in nodes[1..].iter().permutations(nodes.len() - 1) {
+        let end = **walk.last().unwrap();
+        let mut cost = std::iter::once(&start)
             .chain(walk)
             .tuple_windows()
             .map(|(start, end)| *routes.get(&(*start, *end)).unwrap())
             .sum();
+        if back_home {
+            cost += routes.get(&(end, start)).unwrap();
+        }
         cheapest = std::cmp::min(cheapest, cost);
     }
 
     cheapest
+}
+
+#[aoc(day24, part1)]
+fn solve(hvac: &Hvac) -> usize {
+    solver(hvac, false)
+}
+
+#[aoc(day24, part2)]
+fn solve2(hvac: &Hvac) -> usize {
+    solver(hvac, true)
 }
 
 #[test]
