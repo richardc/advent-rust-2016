@@ -82,10 +82,21 @@ impl Scrambler {
         });
         String::from_utf8(bytes).unwrap()
     }
+
+    fn unscramble(&self, s: &str) -> String {
+        let cracked = s
+            .chars()
+            .into_iter()
+            .permutations(s.len())
+            .find(|v| self.scramble(&String::from_iter(v)) == s)
+            .unwrap();
+
+        String::from_iter(cracked)
+    }
 }
 
 #[test]
-fn test_scrambler() {
+fn test_scramble() {
     assert_eq!(
         generate(include_str!("day21_example.txt")).scramble("abcde"),
         "decab"
@@ -100,4 +111,9 @@ fn generate(input: &str) -> Scrambler {
 #[aoc(day21, part1)]
 fn solve(scrambler: &Scrambler) -> String {
     scrambler.scramble("abcdefgh")
+}
+
+#[aoc(day21, part2)]
+fn solve2(scrambler: &Scrambler) -> String {
+    scrambler.unscramble("fbgdceah")
 }
