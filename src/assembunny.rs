@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use thiserror::Error;
 
 type Register = char;
 
@@ -8,10 +9,10 @@ pub enum Value {
     Register(char),
 }
 
-#[derive(Debug)]
-pub struct ValueParseErr {}
+#[derive(Debug, Error)]
+pub enum ValueParseError {}
 impl std::str::FromStr for Value {
-    type Err = ValueParseErr;
+    type Err = ValueParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if let Ok(value) = s.parse::<i32>() {
@@ -30,25 +31,32 @@ pub enum Instruction {
     Jnz(Value, i32),
 }
 
-#[derive(Debug)]
-pub struct InstructionParseErr {}
+#[derive(Error, Debug)]
+pub enum InstructionParseError {
+    #[error("unknown instruction")]
+    Unknown(String),
+
+    #[error("Number Parse")]
+    Number(#[from] std::num::ParseIntError),
+
+    #[error("Value Parse")]
+    Value(#[from] ValueParseError),
+}
+
 impl std::str::FromStr for Instruction {
-    type Err = InstructionParseErr;
+    type Err = InstructionParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let toks = s.split_ascii_whitespace().collect_vec();
         match toks[0] {
             "cpy" => Ok(Instruction::Cpy(
-                toks[1].parse().unwrap(),
+                toks[1].parse()?,
                 toks[2].chars().next().unwrap(),
             )),
             "inc" => Ok(Instruction::Inc(toks[1].chars().next().unwrap())),
             "dec" => Ok(Instruction::Dec(toks[1].chars().next().unwrap())),
-            "jnz" => Ok(Instruction::Jnz(
-                toks[1].parse().unwrap(),
-                toks[2].parse().unwrap(),
-            )),
-            _ => unreachable!(),
+            "jnz" => Ok(Instruction::Jnz(toks[1].parse()?, toks[2].parse()?)),
+            _ => Err(InstructionParseError::Unknown(s.to_string())),
         }
     }
 }
