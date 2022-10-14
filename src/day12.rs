@@ -7,8 +7,8 @@ fn generate(input: &str) -> Vec<Instruction> {
 
 #[aoc(day12, part1)]
 fn solve(program: &[Instruction]) -> i32 {
-    let mut cpu = Cpu::default();
-    cpu.run(program);
+    let mut cpu = Cpu::new(program.to_vec());
+    cpu.run();
     cpu.get('a')
 }
 
@@ -20,8 +20,8 @@ fn test_solve() {
 
 #[aoc(day12, part2)]
 fn solve2(program: &[Instruction]) -> i32 {
-    let mut cpu = Cpu::default();
+    let mut cpu = Cpu::new(program.to_vec());
     cpu.set('c', 1);
-    cpu.run(program);
+    cpu.run();
     cpu.get('a')
 }
