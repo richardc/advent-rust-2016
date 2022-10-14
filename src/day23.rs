@@ -12,3 +12,11 @@ fn solve(program: &[Instruction]) -> i32 {
     cpu.run();
     cpu.get('a')
 }
+
+#[aoc(day23, part2)]
+fn solve2(program: &[Instruction]) -> i32 {
+    let mut cpu = Cpu::new(program.to_vec());
+    cpu.set('a', 12);
+    cpu.run();
+    cpu.get('a')
+}
