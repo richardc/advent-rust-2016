@@ -26,10 +26,11 @@ impl std::str::FromStr for Value {
 #[derive(Clone, Copy)]
 pub enum Instruction {
     Cpy(Value, Value),
-    Inc(Register),
-    Dec(Register),
+    Inc(Value),
+    Dec(Value),
     Jnz(Value, Value),
-    Tgl(Register),
+    Tgl(Value),
+    Out(Value),
 }
 
 #[derive(Error, Debug)]
@@ -51,10 +52,11 @@ impl std::str::FromStr for Instruction {
         let toks = s.split_ascii_whitespace().collect_vec();
         match toks[0] {
             "cpy" => Ok(Instruction::Cpy(toks[1].parse()?, toks[2].parse()?)),
-            "inc" => Ok(Instruction::Inc(toks[1].chars().next().unwrap())),
-            "dec" => Ok(Instruction::Dec(toks[1].chars().next().unwrap())),
+            "inc" => Ok(Instruction::Inc(toks[1].parse()?)),
+            "dec" => Ok(Instruction::Dec(toks[1].parse()?)),
             "jnz" => Ok(Instruction::Jnz(toks[1].parse()?, toks[2].parse()?)),
-            "tgl" => Ok(Instruction::Tgl(toks[1].chars().next().unwrap())),
+            "tgl" => Ok(Instruction::Tgl(toks[1].parse()?)),
+            "out" => Ok(Instruction::Out(toks[1].parse()?)),
             _ => Err(InstructionParseError::Unknown(s.to_string())),
         }
     }
@@ -68,6 +70,7 @@ pub struct Cpu {
     d: i32,
     pc: i32,
     program: Vec<Instruction>,
+    output: Option<i32>,
 }
 
 impl Cpu {
@@ -109,32 +112,65 @@ impl Cpu {
         match self.program[self.pc as usize] {
             Instruction::Cpy(src, Value::Register(dest)) => self.set(dest, self.eval(src)),
             Instruction::Cpy(_, Value::Literal(_)) => (),
-            Instruction::Inc(dest) => self.set(dest, self.get(dest) + 1),
-            Instruction::Dec(dest) => self.set(dest, self.get(dest) - 1),
+            Instruction::Inc(Value::Register(dest)) => self.set(dest, self.get(dest) + 1),
+            Instruction::Inc(Value::Literal(_)) => (),
+            Instruction::Dec(Value::Register(dest)) => self.set(dest, self.get(dest) - 1),
+            Instruction::Dec(Value::Literal(_)) => (),
             Instruction::Jnz(test, jump) => {
                 if self.eval(test) != 0 {
                     next = self.eval(jump);
                 }
             }
-            Instruction::Tgl(dest) => {
+            Instruction::Tgl(Value::Register(dest)) => {
                 let addr = self.pc + self.get(dest);
                 if addr >= 0 && addr < self.program.len() as i32 {
                     self.program[addr as usize] = match self.program[addr as usize] {
                         Instruction::Inc(a) => Instruction::Dec(a),
                         Instruction::Dec(a) => Instruction::Inc(a),
                         Instruction::Tgl(a) => Instruction::Inc(a),
+                        Instruction::Out(a) => Instruction::Inc(a),
                         Instruction::Jnz(a, b) => Instruction::Cpy(a, b),
                         Instruction::Cpy(a, b) => Instruction::Jnz(a, b),
                     };
                 }
             }
+            Instruction::Tgl(Value::Literal(_)) => (),
+            Instruction::Out(src) => self.output = Some(self.eval(src)),
         }
         self.pc += next;
     }
 
+    pub fn halted(&self) -> bool {
+        self.pc >= self.program.len() as i32
+    }
+
     pub fn run(&mut self) {
-        while self.pc < self.program.len() as i32 {
+        while !self.halted() {
             self.tick();
         }
+    }
+
+    pub fn run_till_output(&mut self) -> Option<i32> {
+        self.output = None;
+        while !self.halted() && self.output == None {
+            self.tick();
+        }
+        self.output
+    }
+
+    pub fn iter(self) -> CpuIter {
+        CpuIter { cpu: self }
+    }
+}
+
+pub struct CpuIter {
+    cpu: Cpu,
+}
+
+impl Iterator for CpuIter {
+    type Item = i32;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.cpu.run_till_output()
     }
 }
