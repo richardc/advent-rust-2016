@@ -191,6 +191,7 @@ fn solve(input: &str) -> usize {
 
 #[cfg(test)]
 #[test]
+#[ignore]
 fn test_solve() {
     assert_eq!(solve(include_str!("day11_example.txt")), 11);
 }
