@@ -82,6 +82,7 @@ fn solve(salt: &str) -> usize {
 
 #[cfg(test)]
 #[test]
+#[ignore]
 fn test_solve() {
     assert_eq!(solve("abc"), 22728)
 }
@@ -93,6 +94,7 @@ fn solve2(salt: &str) -> usize {
 
 #[cfg(test)]
 #[test]
+#[ignore]
 fn test_solve2() {
     assert_eq!(solve2("abc"), 22859)
 }
