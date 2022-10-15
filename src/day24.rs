@@ -59,48 +59,46 @@ fn generate(s: &str) -> Hvac {
 }
 
 fn solver(hvac: &Hvac, back_home: bool) -> usize {
+    let nodes = hvac.nodes();
     let routes: HashMap<(Point, Point), usize> = HashMap::from_iter(
-        hvac.nodes()
-            .into_iter()
+        nodes
+            .iter()
             .permutations(2)
-            .filter_map(|v| {
-                let start = v[0];
-                let end = v[1];
-                if start == end {
-                    None
-                } else {
-                    dijkstra(
-                        &start,
-                        |p| hvac.successors(p).into_iter().map(|s| (s, 1)).collect_vec(),
-                        |p| *p == end,
-                    )
-                }
+            .map(|v| (v[0], v[1]))
+            .filter(|(start, end)| start != end)
+            .filter_map(|(start, end)| {
+                dijkstra(
+                    start,
+                    |p| hvac.successors(p).into_iter().map(|s| (s, 1)).collect_vec(),
+                    |p| *p == *end,
+                )
             })
             .flat_map(|(path, cost)| {
-                vec![
+                [
                     ((*path.first().unwrap(), *path.last().unwrap()), cost),
                     ((*path.last().unwrap(), *path.first().unwrap()), cost),
                 ]
             }),
     );
 
-    let nodes = hvac.nodes();
     let start = nodes[0];
-    let mut cheapest = usize::MAX;
-    for walk in nodes[1..].iter().permutations(nodes.len() - 1) {
-        let end = **walk.last().unwrap();
-        let mut cost = std::iter::once(&start)
-            .chain(walk)
-            .tuple_windows()
-            .map(|(start, end)| *routes.get(&(*start, *end)).unwrap())
-            .sum();
-        if back_home {
-            cost += routes.get(&(end, start)).unwrap();
-        }
-        cheapest = std::cmp::min(cheapest, cost);
-    }
+    let rest = &nodes[1..];
+    rest.iter()
+        .permutations(rest.len())
+        .map(|walk| {
+            // all paths start at start.  Part 2 they go back home
+            let path = match back_home {
+                false => [&[&start], &walk[..]].concat(),
+                true => [&[&start], &walk[..], &[&start]].concat(),
+            };
 
-    cheapest
+            path.into_iter()
+                .tuple_windows()
+                .map(|(start, end)| *routes.get(&(*start, *end)).unwrap())
+                .sum()
+        })
+        .min()
+        .unwrap()
 }
 
 #[aoc(day24, part1)]
